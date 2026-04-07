@@ -1,5 +1,5 @@
 <template>
-    <Select v-bind="props">
+    <Select :items="items" :placeholder="placeholder" :model-value="modelValue" :trigger-class="triggerClass">
         <SelectTrigger :class="triggerClass">
             <SelectValue :placeholder="placeholder" />
         </SelectTrigger>
