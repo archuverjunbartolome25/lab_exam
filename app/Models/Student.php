@@ -31,10 +31,20 @@ class Student extends Model
         'courses',
         'standing',
         'academic_status',
+        'achievements',
+        'skills',
+        'affiliations',
+        'violations',
+        'medicalRecord',
     ];
 
     protected $casts = [
         'courses' => 'array',
+        'achievements' => 'array',
+        'skills' => 'array',
+        'affiliations' => 'array',
+        'violations' => 'array',
+        'medicalRecord' => 'array',
         'bday' => 'date',
     ];
 

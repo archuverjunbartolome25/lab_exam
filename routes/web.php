@@ -36,6 +36,29 @@ Route::prefix('query')->name('query.')->group(function () {
 Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::get('/dashboard', [FacultyController::class, 'dashboard'])->name('dashboard');
     Route::get('/students', [FacultyController::class, 'students'])->name('students');
+    Route::get('/students/create', [FacultyController::class, 'createStudent'])->name('students.create');
+    Route::post('/students/create', [FacultyController::class, 'storeStudent'])->name('students.store');
+    Route::get('/students/{student}', [FacultyController::class, 'showStudent'])->name('students.show');
+    
+    // Student data management routes
+    Route::post('/students/{student}/courses', [FacultyController::class, 'addCourse'])->name('students.courses.store');
+    Route::delete('/students/{student}/courses/{course}', [FacultyController::class, 'removeCourse'])->name('students.courses.destroy');
+    
+    Route::post('/students/{student}/achievements', [FacultyController::class, 'addAchievement'])->name('students.achievements.store');
+    Route::delete('/students/{student}/achievements/{achievement}', [FacultyController::class, 'removeAchievement'])->name('students.achievements.destroy');
+    
+    Route::post('/students/{student}/skills', [FacultyController::class, 'addSkill'])->name('students.skills.store');
+    Route::delete('/students/{student}/skills/{skill}', [FacultyController::class, 'removeSkill'])->name('students.skills.destroy');
+    
+    Route::post('/students/{student}/affiliations', [FacultyController::class, 'addAffiliation'])->name('students.affiliations.store');
+    Route::delete('/students/{student}/affiliations/{affiliation}', [FacultyController::class, 'removeAffiliation'])->name('students.affiliations.destroy');
+    
+    Route::post('/students/{student}/violations', [FacultyController::class, 'addViolation'])->name('students.violations.store');
+    Route::delete('/students/{student}/violations/{violation}', [FacultyController::class, 'removeViolation'])->name('students.violations.destroy');
+    
+    Route::post('/students/{student}/medical', [FacultyController::class, 'addMedicalRecord'])->name('students.medical.store');
+    Route::delete('/students/{student}/medical/{medical}', [FacultyController::class, 'removeMedicalRecord'])->name('students.medical.destroy');
+    
     Route::get('/sections', [FacultyController::class, 'sections'])->name('sections');
     Route::get('/courses', [FacultyController::class, 'courses'])->name('courses');
     Route::get('/grades', [FacultyController::class, 'grades'])->name('grades');

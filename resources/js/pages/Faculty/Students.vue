@@ -838,12 +838,12 @@ const getViolationColor = (count?: number) => {
                                     <span v-else class="text-xs text-gray-400">No skills</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <button 
-                                        @click="selectStudent(student)"
+                                    <Link 
+                                        :href="`/faculty/students/${student.stud_id}`"
                                         class="text-orange-600 hover:text-orange-800 text-sm font-medium"
                                     >
                                         View Details
-                                    </button>
+                                    </Link>
                                 </td>
                             </tr>
                         </tbody>
