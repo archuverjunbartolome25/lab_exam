@@ -39,6 +39,7 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::get('/students/create', [FacultyController::class, 'createStudent'])->name('students.create');
     Route::post('/students/create', [FacultyController::class, 'storeStudent'])->name('students.store');
     Route::get('/students/{student}', [FacultyController::class, 'showStudent'])->name('students.show');
+    Route::put('/students/{student}', [FacultyController::class, 'editStudent'])->name('students.update');
     
     // Student data management routes
     Route::post('/students/{student}/courses', [FacultyController::class, 'addCourse'])->name('students.courses.store');

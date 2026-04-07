@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import AppLogo from '@/components/AppLogo.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const isFaculty = computed(() => {
+    return page.url.startsWith('/faculty');
+});
 
 withDefaults(
     defineProps<{
@@ -19,6 +27,10 @@ withDefaults(
     >
         <div class="flex items-center gap-2">
             <SidebarTrigger class="-ml-1" />
+            <div class="flex items-center gap-2">
+                <AppLogo />
+                <span v-if="isFaculty" class="text-lg font-semibold text-foreground">CSS Profiling System</span>
+            </div>
             <template v-if="breadcrumbs && breadcrumbs.length > 0">
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>

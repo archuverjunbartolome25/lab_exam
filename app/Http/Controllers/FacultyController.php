@@ -609,4 +609,56 @@ class FacultyController extends Controller
 
         return redirect()->back()->with('success', 'Medical record removed successfully!');
     }
+
+    public function editStudent(Student $student, Request $request)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'middle_name' => 'nullable|string|max:100',
+            'ext' => 'nullable|string|max:20',
+            'email' => 'required|email|max:150|unique:students,email,'.$student->stud_id,
+            'phone' => 'required|string|max:20',
+            'birth_date' => 'required|date',
+            'gender' => 'required|in:Male,Female,Other',
+            'address' => 'required|string',
+            'program' => 'required|in:BSIT,BSCS',
+            'program_code' => 'required|string|max:10',
+            'section_id' => 'required|integer',
+            'courses' => 'nullable|array',
+            'standing' => 'required|string|max:20',
+            'academic_status' => 'required|in:Regular,Irregular',
+        ]);
+
+        // Validate section_id exists in the correct table based on program
+        $sectionTable = $validated['program'] === 'BSIT' ? 'sections_it' : 'sections_cs';
+        if (!\DB::table($sectionTable)->where('section_id', $validated['section_id'])->exists()) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['section_id' => 'The selected section is invalid.']);
+        }
+
+        // Map form fields to database columns
+        $studentData = [
+            'fname' => $validated['first_name'],
+            'lname' => $validated['last_name'],
+            'mname' => $validated['middle_name'] ?? null,
+            'ext' => $validated['ext'] ?? null,
+            'email' => $validated['email'],
+            'contact_num' => $validated['phone'],
+            'bday' => $validated['birth_date'],
+            'gender' => $validated['gender'],
+            'address' => $validated['address'],
+            'program' => $validated['program'],
+            'program_code' => $validated['program_code'],
+            'section_id' => $validated['section_id'],
+            'courses' => $validated['courses'] ?? null,
+            'standing' => $validated['standing'],
+            'academic_status' => $validated['academic_status'],
+        ];
+
+        $student->update($studentData);
+
+        return redirect()->back()->with('success', 'Student information updated successfully!');
+    }
 }
