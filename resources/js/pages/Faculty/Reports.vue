@@ -45,7 +45,7 @@ const getTypeIcon = (type) => {
         <div class="p-6">
             <!-- Header -->
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">Reports Management</h1>
+                <h1 class="text-2xl font-bold text-gray-900">REPORTS</h1>
                 <p class="text-gray-600 mt-2">Generate and manage academic reports</p>
             </div>
 

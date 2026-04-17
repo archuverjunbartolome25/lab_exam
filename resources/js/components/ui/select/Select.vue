@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
     import { computed } from 'vue';
-    import * as Select from '@/components/ui/select';
+    import { SelectRoot as Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'reka-ui';
 
     interface SelectItem {
         value: string | number;

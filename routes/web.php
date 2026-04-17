@@ -18,10 +18,10 @@ Route::get('dashboard', function () {
 // Student Routes
 Route::prefix('students')->name('students.')->group(function () {
     Route::get('/', [StudentController::class, 'index'])->name('index');
-    Route::get('/{student}', [StudentController::class, 'show'])->name('show');
     Route::get('/query', [StudentController::class, 'query'])->name('query');
     Route::post('/query/run', [StudentController::class, 'runQuery'])->name('query.run');
     Route::post('/query/save', [StudentController::class, 'saveQuery'])->name('query.save');
+    Route::get('/{student}', [StudentController::class, 'show'])->name('show');
 });
 
 // Student Query Routes
@@ -32,14 +32,33 @@ Route::prefix('query')->name('query.')->group(function () {
     Route::post('/search', [StudentQueryController::class, 'search'])->name('search');
 });
 
-// Faculty Routes (View Only)
+// =====================================================
+// PART 1: CLIENT-SIDE ROUTING (BARTOLOME)
+// =====================================================
+// Create routes for:
+// - /dashboard 
+// - /users 
+// - /reports 
+// Expected Output:
+// Navigation menu switches pages without reload
+
+// Faculty Routes (View Only) - Client-side routing with Inertia.js
 Route::prefix('faculty')->name('faculty.')->group(function () {
+    // Dashboard route - Main landing page for faculty
     Route::get('/dashboard', [FacultyController::class, 'dashboard'])->name('dashboard');
+    
+    // Users route - User management page with advanced filtering
     Route::get('/students', [FacultyController::class, 'students'])->name('students');
     Route::get('/students/create', [FacultyController::class, 'createStudent'])->name('students.create');
     Route::post('/students/create', [FacultyController::class, 'storeStudent'])->name('students.store');
     Route::get('/students/{student}', [FacultyController::class, 'showStudent'])->name('students.show');
     Route::put('/students/{student}', [FacultyController::class, 'editStudent'])->name('students.update');
+    
+    // Dynamic user route - Individual user details page
+    Route::get('/users/{id}', [FacultyController::class, 'showUser'])->name('users.show');
+    
+    // Reports route - Role-based access control implemented
+    Route::get('/reports', [FacultyController::class, 'reports'])->name('reports');
     
     // Student data management routes
     Route::post('/students/{student}/courses', [FacultyController::class, 'addCourse'])->name('students.courses.store');

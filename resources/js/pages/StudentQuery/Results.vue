@@ -6,7 +6,8 @@ import { Search, Filter, Users, Award, Briefcase } from 'lucide-vue-next';
 
 const props = defineProps<{
     students: Array<{
-        id: number;
+        id?: number;
+        stud_id?: number;
         name: string;
         stud_num: string;
         program: string;
@@ -154,7 +155,7 @@ const getAffiliationTypeColor = (type: string) => {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="student in filteredStudents" :key="student.id" class="hover:bg-gray-50">
+                            <tr v-for="student in filteredStudents" :key="student.stud_id ?? student.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
@@ -197,7 +198,7 @@ const getAffiliationTypeColor = (type: string) => {
 
             <!-- List View -->
             <div v-else-if="viewMode === 'list'" class="space-y-4">
-                <div v-for="student in filteredStudents" :key="student.id" 
+                <div v-for="student in filteredStudents" :key="student.stud_id ?? student.id" 
                      class="bg-white rounded-lg shadow border border-gray-200 p-6 hover:shadow-lg transition-shadow">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-4">
@@ -211,7 +212,7 @@ const getAffiliationTypeColor = (type: string) => {
                         </div>
                         <div class="text-right">
                             <Link 
-                                :href="`/students/${student.id}`"
+                                :href="`/students/${student.stud_id ?? student.id}`"
                                 class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                             >
                                 View Profile
@@ -247,7 +248,7 @@ const getAffiliationTypeColor = (type: string) => {
 
             <!-- Cards View -->
             <div v-else-if="viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="student in filteredStudents" :key="student.id" 
+                <div v-for="student in filteredStudents" :key="student.stud_id ?? student.id" 
                      class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow">
                     <!-- Card Header -->
                     <div class="flex items-center justify-between mb-4">
@@ -301,7 +302,7 @@ const getAffiliationTypeColor = (type: string) => {
                     <!-- Card Footer -->
                     <div class="mt-4 pt-4 border-t border-gray-200">
                         <Link 
-                            :href="`/students/${student.id}`"
+                            :href="`/students/${student.stud_id ?? student.id}`"
                             class="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-center font-medium transition-colors"
                         >
                             View Full Profile

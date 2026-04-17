@@ -29,7 +29,7 @@ withDefaults(
             <SidebarTrigger class="-ml-1" />
             <div class="flex items-center gap-2">
                 <AppLogo />
-                <span v-if="isFaculty" class="text-lg font-semibold text-foreground">CSS Profiling System</span>
+                <span v-if="isFaculty" class="text-lg font-semibold text-foreground">CCS Profiling System</span>
             </div>
             <template v-if="breadcrumbs && breadcrumbs.length > 0">
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />

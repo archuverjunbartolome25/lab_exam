@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { Users, CalendarDays, Award, FileText, Settings, BookOpen, LayoutDashboard } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import { Users, CalendarDays, Award, FileText, Settings, BookOpen, LayoutDashboard, Sun, Moon, Monitor } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import { type BreadcrumbItem } from '@/types';
+import { useAuth } from '@/composables/useAuth';
+import { useTheme } from '@/composables/useTheme';
+import { useRoleBasedAccess } from '@/composables/useRoleBasedAccess';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -12,46 +15,39 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const sidebarNavItems = [
-    {
-        title: 'Dashboard',
-        href: '/faculty/dashboard',
-        icon: LayoutDashboard,
-    },
-    {
-        title: 'Students',
-        href: '/faculty/students',
-        icon: Users,
-    },
-    {
-        title: 'Sections',
-        href: '/faculty/sections',
-        icon: BookOpen,
-    },
-    {
-        title: 'Courses/Subjects',
-        href: '/faculty/courses',
-        icon: LayoutDashboard,
-    },
-    {
-        title: 'Grades',
-        href: '/faculty/grades',
-        icon: Award,
-    },
-    {
-        title: 'Reports',
-        href: '/faculty/reports',
-        icon: FileText,
-    },
-    {
-        title: 'Settings',
-        href: '/faculty/settings',
-        icon: Settings,
-    },
-];
+// Role-based navigation items
+const sidebarNavItems = computed(() => {
+    const items = getNavigationItems();
+    
+    // Map string icon names to actual icon components
+    return items.map(item => ({
+        ...item,
+        icon: item.icon === 'LayoutDashboard' ? LayoutDashboard :
+               item.icon === 'Users' ? Users :
+               item.icon === 'BookOpen' ? BookOpen :
+               item.icon === 'FileText' ? FileText :
+               item.icon === 'Settings' ? Settings :
+               item.icon === 'Award' ? Award :
+               LayoutDashboard
+    }));
+});
 
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
+
+// Global state
+const { userName, userInitials, user } = useAuth();
+const { currentTheme, toggleTheme } = useTheme();
+const { getNavigationItems, hasPermission, isAdmin, isFaculty } = useRoleBasedAccess();
+
+// Computed properties
+const themeIcon = computed(() => {
+    switch (currentTheme.value) {
+        case 'light': return Sun;
+        case 'dark': return Moon;
+        default: return Monitor;
+    }
+});
 </script>
 
 <template>
@@ -80,7 +76,7 @@ const isSidebarCollapsed = ref(false);
                 <div class="flex items-center justify-between h-16 px-4 bg-orange-400 dark:bg-orange-500 flex-shrink-0">
                     <div class="flex items-center">
                         <AppLogo class="h-8 w-8 text-white" :show-text="!isSidebarCollapsed" />
-                        <span v-if="!isSidebarCollapsed" class="ml-3 text-white font-semibold">CSS Profiling System</span>
+                        <span v-if="!isSidebarCollapsed" class="ml-3 text-white font-semibold">Student Profiling System</span>
                     </div>
                 </div>
 
@@ -103,12 +99,12 @@ const isSidebarCollapsed = ref(false);
                 <!-- User section -->
                 <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
                     <div class="flex items-center" :class="isSidebarCollapsed ? 'justify-center' : 'space-x-3'">
-                        <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                            <span class="text-sm font-medium text-gray-600">F</span>
+                        <div class="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+                            <span class="text-sm font-medium text-white">{{ userInitials }}</span>
                         </div>
                         <div v-if="!isSidebarCollapsed" class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">Faculty User</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">faculty@ccs.edu</p>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">{{ userName }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user?.email }}</p>
                         </div>
                     </div>
                 </div>
@@ -138,7 +134,14 @@ const isSidebarCollapsed = ref(false);
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                             </svg>
                         </button>
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">CSS Profiling System</h1>
+                        <button
+                            @click="toggleTheme"
+                            class="hidden lg:flex text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 p-2 rounded-md transition-colors"
+                            :title="`Current theme: ${currentTheme}`"
+                        >
+                            <component :is="themeIcon" class="h-5 w-5" />
+                        </button>
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">Student Profiling System</h1>
                     </div>
                 </div>
             </header>

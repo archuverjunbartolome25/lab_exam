@@ -200,6 +200,36 @@ class FacultyController extends Controller
             ->with('success', 'Student created successfully!');
     }
 
+    public function showUser($id)
+    {
+        // Find user by ID (for demo, using student data)
+        $user = Student::with([
+            'affiliations',
+            'skills', 
+            'violations',
+            'achievements',
+            'academicHistory',
+            'medicalRecord'
+        ])->find($id);
+
+        if (!$user) {
+            abort(404);
+        }
+
+        // Get section information
+        $section = null;
+        if ($user->program === 'BSIT') {
+            $section = SectionsIT::find($user->section_id);
+        } elseif ($user->program === 'BSCS') {
+            $section = SectionsCS::find($user->section_id);
+        }
+
+        return Inertia::render('UserDetail', [
+            'user' => $user,
+            'section' => $section
+        ]);
+    }
+
     public function showStudent(Student $student)
     {
         // Load student with achievements relationship

@@ -14,7 +14,6 @@ import {
     UserCheck
 } from 'lucide-vue-next';
 
-// Define props for data passed from controller
 const props = defineProps({
     stats: {
         type: Object,
@@ -31,6 +30,9 @@ const searchQuery = ref('');
         <Head title="Faculty Dashboard" />
 
         <div class="p-6">
+                    <div class="mb-6">
+                        <h1 class="text-3xl font-bold text-gray-900">DASHBOARD</h1>
+                    </div>
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">

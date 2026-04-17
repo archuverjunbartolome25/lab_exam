@@ -13,6 +13,12 @@ class Student extends Model
 
     protected $table = 'students';
     protected $primaryKey = 'stud_id';
+
+    public function getRouteKeyName(): string
+    {
+        return 'stud_id';
+    }
+
     protected $fillable = [
         'stud_num',
         'fname',

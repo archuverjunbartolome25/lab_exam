@@ -358,7 +358,7 @@ const getViolationColor = (count?: number) => {
         <div class="p-6">
             <!-- Header -->
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">Students Management</h1>
+                <h1 class="text-2xl font-bold text-gray-900">STUDENTS</h1>
                 <p class="text-gray-600 mt-2">View and manage all enrolled students</p>
             </div>
 

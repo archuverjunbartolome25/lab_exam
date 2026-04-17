@@ -51,7 +51,7 @@ const updatePreferences = () => {
         <div class="p-6">
             <!-- Header -->
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
+                <h1 class="text-2xl font-bold text-gray-900">SETTINGS</h1>
                 <p class="text-gray-600 mt-2">Manage your faculty profile and preferences</p>
             </div>
 
