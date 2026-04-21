@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
 import { 
     BookOpen, 
     CalendarDays, 
@@ -14,6 +14,7 @@ import {
 } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import { type BreadcrumbItem } from '@/types';
+import { syncWithPageProps } from '@/stores/globalState';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -67,6 +68,29 @@ const sidebarNavItems = [
 
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
+
+// Get page props and user data
+const page = usePage();
+const authUser = computed(() => page.props.auth?.user);
+
+// Get user initials for avatar
+const userInitials = computed(() => {
+    if (!authUser.value) return 'S';
+    const firstName = String(authUser.value.fname || '');
+    const lastName = String(authUser.value.lname || '');
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || 'S';
+});
+
+// Get full name
+const fullName = computed(() => {
+    if (!authUser.value) return 'Student User';
+    return `${String(authUser.value.fname || '')} ${String(authUser.value.lname || '')}`.trim() || 'Student User';
+});
+
+// Sync with page props on mount
+onMounted(() => {
+    syncWithPageProps(page.props);
+});
 </script>
 
 <template>
@@ -119,11 +143,11 @@ const isSidebarCollapsed = ref(false);
                 <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
                     <div class="flex items-center" :class="isSidebarCollapsed ? 'justify-center' : 'space-x-3'">
                         <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                            <span class="text-sm font-medium text-gray-600">S</span>
+                            <span class="text-sm font-medium text-gray-600">{{ userInitials }}</span>
                         </div>
                         <div v-if="!isSidebarCollapsed" class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">Student User</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">student@ccs.edu</p>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">{{ fullName }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ authUser?.email || 'student@labexam.com' }}</p>
                         </div>
                     </div>
                 </div>

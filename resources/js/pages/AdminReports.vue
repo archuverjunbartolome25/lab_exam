@@ -9,12 +9,12 @@
 import { Head } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
 import { Search, Plus, Download, FileText, TrendingUp, Users, Calendar, BarChart3, Shield, Eye, Edit, Trash2 } from 'lucide-vue-next';
-import FacultyLayout from '@/layouts/FacultyLayout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import RouteGuard from '@/components/RouteGuard.vue';
 import { useRoleBasedAccess } from '@/composables/useRoleBasedAccess';
 
 defineOptions({
-    layout: FacultyLayout,
+    layout: AdminLayout,
 });
 
 // Role-based access control - Prevent non-admin access
@@ -88,7 +88,7 @@ const filteredReports = computed(() => {
     });
 });
 
-const getStatusColor = (status) => {
+const getStatusColor = (status: string) => {
     switch(status) {
         case 'Ready': return 'bg-green-100 text-green-800';
         case 'Processing': return 'bg-yellow-100 text-yellow-800';
@@ -97,7 +97,7 @@ const getStatusColor = (status) => {
     }
 };
 
-const getSensitivityColor = (sensitivity) => {
+const getSensitivityColor = (sensitivity: string) => {
     switch(sensitivity) {
         case 'confidential': return 'bg-red-100 text-red-800';
         case 'internal': return 'bg-orange-100 text-orange-800';
@@ -106,7 +106,7 @@ const getSensitivityColor = (sensitivity) => {
     }
 };
 
-const getTypeIcon = (type) => {
+const getTypeIcon = (type: string) => {
     switch(type) {
         case 'System': return TrendingUp;
         case 'Security': return Shield;
@@ -138,9 +138,7 @@ const handleDownloadReport = (reportId: number) => {
 </script>
 
 <template>
-    <!-- Route Guard - Prevent non-admin access to /reports -->
-    <RouteGuard required-role="admin" required-permissions="['view_reports', 'generate_reports']">
-        <Head title="Admin Reports" />
+    <Head title="Admin Reports" />
 
         <div class="p-6">
             <!-- Admin Access Header - Role-based UI -->
@@ -296,5 +294,4 @@ const handleDownloadReport = (reportId: number) => {
                 </button>
             </div>
         </div>
-    </RouteGuard>
 </template>

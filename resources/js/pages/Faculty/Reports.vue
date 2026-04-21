@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import FacultyLayout from '@/layouts/FacultyLayout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+
+const page = usePage();
+const isAdmin = computed(() => (page.props as any).isAdmin);
+const Layout = computed(() => isAdmin.value ? AdminLayout : FacultyLayout);
 import { Search, Plus, Download, FileText, TrendingUp, Users, Calendar, BarChart3 } from 'lucide-vue-next';
 
 const reports = ref([
@@ -39,7 +45,7 @@ const getTypeIcon = (type) => {
 </script>
 
 <template>
-    <FacultyLayout>
+    <component :is="Layout">
         <Head title="Faculty Reports" />
 
         <div class="p-6">
@@ -63,22 +69,14 @@ const getTypeIcon = (type) => {
                     </div>
                     <select 
                         v-model="selectedType"
-                        class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                        class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     >
-                        <option value="all">All Types</option>
+                        <option value="">Select Report Type</option>
                         <option value="Performance">Performance</option>
                         <option value="Attendance">Attendance</option>
-                        <option value="Grades">Grades</option>
                         <option value="Enrollment">Enrollment</option>
                         <option value="Faculty">Faculty</option>
                     </select>
-                    <Link 
-                        href="/faculty/reports/create"
-                        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors"
-                    >
-                        <Plus class="h-4 w-4" />
-                        Generate Report
-                    </Link>
                 </div>
             </div>
 
@@ -187,5 +185,5 @@ const getTypeIcon = (type) => {
                 </div>
             </div>
         </div>
-    </FacultyLayout>
+    </component>
 </template>

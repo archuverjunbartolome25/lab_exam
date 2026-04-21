@@ -96,13 +96,6 @@ const changePage = (page: number) => {
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Faculty</h1>
                     <p class="text-gray-600 dark:text-gray-400">Manage faculty information and records</p>
                 </div>
-                <Link
-                    href="/faculty/create"
-                    class="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                    <Plus class="w-4 h-4 mr-2" />
-                    Add Faculty
-                </Link>
             </div>
 
             <!-- Search and Filters -->
@@ -247,18 +240,6 @@ const changePage = (page: number) => {
                                         >
                                             <Eye class="w-4 h-4" />
                                         </Link>
-                                        <Link
-                                            :href="`/faculty/${member.id}/edit`"
-                                            class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
-                                        >
-                                            <Edit class="w-4 h-4" />
-                                        </Link>
-                                        <button
-                                            @click="deleteFaculty(member.id)"
-                                            class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                        >
-                                            <Trash2 class="w-4 h-4" />
-                                        </button>
                                     </div>
                                 </td>
                             </tr>

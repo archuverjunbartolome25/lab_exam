@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import FacultyLayout from '@/layouts/FacultyLayout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+
+const page = usePage();
+const isAdmin = computed(() => (page.props as any).isAdmin);
+const Layout = computed(() => isAdmin.value ? AdminLayout : FacultyLayout);
 import { BookOpen, Search, Plus, Users } from 'lucide-vue-next';
 
 // Define props for data passed from controller
@@ -102,7 +108,7 @@ const backToSections = () => {
 </script>
 
 <template>
-    <FacultyLayout>
+    <component :is="Layout">
         <Head title="Faculty Courses" />
 
         <div class="p-6">
@@ -169,13 +175,6 @@ const backToSections = () => {
                     <div class="text-sm text-gray-600">
                         <span class="font-medium">{{ sectionOptions.length }}</span> sections found
                     </div>
-                    <Link 
-                        href="/faculty/courses/create"
-                        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-                    >
-                        <Plus class="h-4 w-4" />
-                        Add Course
-                    </Link>
                 </div>
             </div>
 
@@ -333,5 +332,5 @@ const backToSections = () => {
                 </div>
             </div>
         </div>
-    </FacultyLayout>
+    </component>
 </template>

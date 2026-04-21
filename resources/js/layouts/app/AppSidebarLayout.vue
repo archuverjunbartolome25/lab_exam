@@ -20,10 +20,10 @@
                             <DropdownMenuTrigger as-child>
                                 <Button variant="ghost" class="flex items-center space-x-2">
                                     <Avatar class="h-8 w-8">
-                                        <AvatarImage :src="user.avatar" :alt="user.name" />
-                                        <AvatarFallback>{{ user.name.charAt(0) }}</AvatarFallback>
+                                        <AvatarImage v-if="user?.avatar" :src="user.avatar" :alt="user?.name" />
+                                        <AvatarFallback>{{ user?.name?.charAt(0) }}</AvatarFallback>
                                     </Avatar>
-                                    <span class="hidden sm:block">{{ user.name }}</span>
+                                    <span class="hidden sm:block">{{ user?.name }}</span>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -49,7 +49,7 @@
                             :href="route('dashboard')"
                             :class="[
                                 'flex items-center px-4 py-2 text-sm font-medium rounded-md',
-                                $page.url === route('dashboard')
+                                page.url === route('dashboard')
                                     ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                             ]"
@@ -93,7 +93,8 @@
 </template>
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import { Home } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -113,5 +114,6 @@ const props = withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
 });
 
-const user = $page.props.auth.user;
+const page = usePage();
+const user = computed(() => (page.props.auth as any).user);
 </script>

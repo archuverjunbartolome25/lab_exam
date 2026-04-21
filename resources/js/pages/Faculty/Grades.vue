@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import FacultyLayout from '@/layouts/FacultyLayout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+
+const page = usePage();
+const isAdmin = computed(() => (page.props as any).isAdmin);
+const Layout = computed(() => isAdmin.value ? AdminLayout : FacultyLayout);
 import { Search, Plus, Edit, Trash2, FileText, TrendingUp, Users } from 'lucide-vue-next';
 
 const grades = ref([
@@ -30,7 +36,7 @@ const getGradeColor = (grade) => {
 </script>
 
 <template>
-    <FacultyLayout>
+    <component :is="Layout">
         <Head title="Faculty Grades" />
 
         <div class="p-6">
@@ -54,20 +60,12 @@ const getGradeColor = (grade) => {
                     </div>
                     <select 
                         v-model="selectedCourse"
-                        class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                        class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     >
-                        <option value="all">All Courses</option>
-                        <option value="CCS101">CCS101 - Computer Fundamentals</option>
-                        <option value="CCS102">CCS102 - Programming Basics</option>
+                        <option value="">Select Course</option>
+                        <option value="CCS101">CCS101 - Introduction to Computer Science</option>
                         <option value="CCS201">CCS201 - Data Structures</option>
                     </select>
-                    <Link 
-                        href="/faculty/grades/create"
-                        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors"
-                    >
-                        <Plus class="h-4 w-4" />
-                        Add Grade
-                    </Link>
                 </div>
             </div>
 
@@ -172,14 +170,7 @@ const getGradeColor = (grade) => {
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex items-center space-x-2">
-                                        <Link href="#" class="text-orange-600 hover:text-orange-900">
-                                            <Edit class="h-4 w-4" />
-                                        </Link>
-                                        <Link href="#" class="text-red-600 hover:text-red-900">
-                                            <Trash2 class="h-4 w-4" />
-                                        </Link>
-                                    </div>
+                                    <!-- Actions removed -->
                                 </td>
                             </tr>
                         </tbody>
@@ -187,5 +178,5 @@ const getGradeColor = (grade) => {
                 </div>
             </div>
         </div>
-    </FacultyLayout>
+    </component>
 </template>

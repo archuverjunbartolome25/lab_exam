@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import FacultyLayout from '@/layouts/FacultyLayout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { 
     BookOpen, 
     Calendar, 
@@ -13,6 +15,10 @@ import {
     BookMarked,
     UserCheck
 } from 'lucide-vue-next';
+
+const page = usePage();
+const isAdmin = computed(() => (page.props as any).isAdmin);
+const Layout = computed(() => isAdmin.value ? AdminLayout : FacultyLayout);
 
 const props = defineProps({
     stats: {
@@ -26,7 +32,7 @@ const searchQuery = ref('');
 </script>
 
 <template>
-    <FacultyLayout>
+    <component :is="Layout">
         <Head title="Faculty Dashboard" />
 
         <div class="p-6">
@@ -138,11 +144,11 @@ const searchQuery = ref('');
             <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Access</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Link href="/faculty/courses" class="flex flex-col items-center justify-center p-4 bg-white rounded-lg hover:shadow-md transition-all group">
+                    <Link :href="isAdmin ? '/admin/courses' : '/faculty/courses'" class="flex flex-col items-center justify-center p-4 bg-white rounded-lg hover:shadow-md transition-all group">
                         <BookOpen class="h-8 w-8 text-blue-600 mb-2 group-hover:scale-110 transition-transform" />
                         <span class="text-sm font-medium text-gray-700">View Courses</span>
                     </Link>
-                    <Link href="/faculty/students" class="flex flex-col items-center justify-center p-4 bg-white rounded-lg hover:shadow-md transition-all group">
+                    <Link :href="isAdmin ? '/admin/students' : '/faculty/students'" class="flex flex-col items-center justify-center p-4 bg-white rounded-lg hover:shadow-md transition-all group">
                         <Users class="h-8 w-8 text-green-600 mb-2 group-hover:scale-110 transition-transform" />
                         <span class="text-sm font-medium text-gray-700">View Students</span>
                     </Link>
@@ -173,5 +179,5 @@ const searchQuery = ref('');
             </div>
         </div>
     </div>
-    </FacultyLayout>
+    </component>
 </template>

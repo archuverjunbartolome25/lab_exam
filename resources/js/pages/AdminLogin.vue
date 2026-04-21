@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { Eye, EyeOff, User, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-vue-next';
+import { Eye, EyeOff, Shield, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-vue-next';
 
 defineProps<{
     canResetPassword?: boolean;
     status?: string;
-    canRegister?: boolean;
 }>();
 
 // Form state
@@ -29,7 +28,7 @@ const errors = computed(() => ({
 // Submit handler
 const submit = () => {
     processing.value = true;
-    form.post('/login', {
+    form.post('/admin/login', {
         onFinish: () => {
             processing.value = false;
         },
@@ -46,20 +45,20 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
 </script>
 
 <template>
-    <Head title="Login" />
+    <Head title="Admin Login" />
 
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8">
-            <!-- User Header -->
+            <!-- Admin Header -->
             <div class="text-center">
-                <div class="mx-auto h-16 w-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
-                    <User class="h-8 w-8 text-white" />
+                <div class="mx-auto h-16 w-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Shield class="h-8 w-8 text-white" />
                 </div>
                 <h2 class="mt-6 text-3xl font-bold text-gray-900">
-                    User Portal
+                    Admin Portal
                 </h2>
                 <p class="mt-2 text-sm text-gray-600">
-                    Sign in to access your account
+                    Sign in to access the administrative dashboard
                 </p>
             </div>
             
@@ -114,10 +113,10 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
                                     required
                                     autocomplete="email"
                                     :class="[
-                                        'appearance-none relative block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400',
-                                        form.errors.email ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-blue-500'
+                                        'appearance-none relative block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder-gray-400',
+                                        form.errors.email ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500'
                                     ]"
-                                    placeholder="user@example.com"
+                                    placeholder="admin@labexam.com"
                                 />
                             </div>
                             <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">
@@ -141,8 +140,8 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
                                     required
                                     autocomplete="current-password"
                                     :class="[
-                                        'appearance-none relative block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400',
-                                        form.errors.password ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-blue-500'
+                                        'appearance-none relative block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder-gray-400',
+                                        form.errors.password ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500'
                                     ]"
                                     placeholder="Enter your password"
                                 />
@@ -168,7 +167,7 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
                                 id="remember"
                                 v-model="form.remember"
                                 type="checkbox"
-                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                             />
                             <label for="remember" class="ml-2 block text-sm text-gray-700">
                                 Remember me
@@ -176,8 +175,8 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
                         </div>
                         <Link
                             v-if="canResetPassword"
-                            href="/forgot-password"
-                            class="text-sm text-blue-600 hover:text-blue-500 transition-colors"
+                            href="/admin/forgot-password"
+                            class="text-sm text-orange-600 hover:text-orange-500 transition-colors"
                         >
                             Forgot password?
                         </Link>
@@ -190,7 +189,7 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
                             :disabled="processing"
                             :class="[
                                 'group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white transform transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2',
-                                processing ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 focus:ring-blue-500'
+                                processing ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 focus:ring-orange-500'
                             ]"
                         >
                             <span class="flex items-center">
@@ -198,25 +197,18 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                <User v-else class="w-5 h-5 mr-2" />
-                                {{ processing ? 'Signing in...' : 'Sign In' }}
+                                <Shield v-else class="w-5 h-5 mr-2" />
+                                {{ processing ? 'Signing in...' : 'Sign In to Admin' }}
                             </span>
                         </button>
                     </div>
                 </form>
                 
-                <!-- Register Link -->
-                <div v-if="canRegister" class="text-center pt-4 border-t border-gray-100">
-                    <Link href="/register" class="inline-flex items-center text-sm text-gray-600 hover:text-blue-600 transition-colors">
-                        Don't have an account? Sign up
-                    </Link>
-                </div>
-                
-                <!-- Admin Login Link -->
-                <div class="text-center">
-                    <Link href="/admin/login" class="inline-flex items-center text-sm text-gray-600 hover:text-orange-600 transition-colors">
+                <!-- Back to User Login -->
+                <div class="text-center pt-4 border-t border-gray-100">
+                    <Link href="/login" class="inline-flex items-center text-sm text-gray-600 hover:text-orange-600 transition-colors">
                         <ArrowLeft class="w-4 h-4 mr-1" />
-                        Admin Login
+                        Back to User Login
                     </Link>
                 </div>
             </div>
@@ -224,8 +216,8 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
             <!-- Security Notice -->
             <div class="text-center">
                 <p class="text-xs text-gray-500">
-                    <User class="inline w-4 h-4 mr-1" />
-                    Secure user access - Protected by authentication
+                    <Shield class="inline w-4 h-4 mr-1" />
+                    Secure admin access - Protected by authentication
                 </p>
             </div>
         </div>

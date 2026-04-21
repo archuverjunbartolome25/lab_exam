@@ -691,4 +691,171 @@ class FacultyController extends Controller
 
         return redirect()->back()->with('success', 'Student information updated successfully!');
     }
+
+    public function storeUser(Request $request)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'birth_date' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:admin,faculty,student',
+            'status' => 'required|in:active,inactive,suspended',
+        ]);
+
+        try {
+            // Generate user number based on role
+            $userNum = match($validated['role']) {
+                'admin' => 'ADMIN' . str_pad(\App\Models\User::where('role', 'admin')->count() + 1, 3, '0', STR_PAD_LEFT),
+                'faculty' => 'FAC' . str_pad(\App\Models\User::where('role', 'faculty')->count() + 1, 3, '0', STR_PAD_LEFT),
+                'student' => 'STU' . str_pad(\App\Models\User::where('role', 'student')->count() + 1, 4, '0', STR_PAD_LEFT),
+                default => 'USER' . str_pad(\App\Models\User::count() + 1, 4, '0', STR_PAD_LEFT),
+            };
+            
+            // Create user in single users table with role
+            $user = \App\Models\User::create([
+                'user_num' => $userNum,
+                'fname' => $validated['first_name'],
+                'lname' => $validated['last_name'],
+                'email' => $validated['email'],
+                'password' => \Hash::make($validated['password']),
+                'role' => $validated['role'],
+                'status' => $validated['status'] === 'active' ? 'active' : 'inactive',
+            ]);
+
+            return redirect()->route('admin.users')
+                ->with('success', ucfirst($validated['role']) . ' user created successfully!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to create user: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Display users for admin management
+     */
+    public function users()
+    {
+        $users = \App\Models\User::select('id', 'user_num', 'fname', 'lname', 'email', 'role', 'status', 'created_at', 'updated_at')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'user_num' => $user->user_num,
+                    'name' => $user->fname . ' ' . $user->lname,
+                    'fname' => $user->fname,
+                    'lname' => $user->lname,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'status' => $user->status,
+                    'join_date' => $user->created_at->format('Y-m-d'),
+                    'last_login' => $user->updated_at->format('Y-m-d H:i A'),
+                ];
+            });
+
+        return Inertia::render('AdminUsers', [
+            'users' => $users,
+        ]);
+    }
+
+    /**
+     * Show the edit user form
+     */
+    public function editUser($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        
+        return Inertia::render('AdminEditUser', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Update the specified user
+     */
+    public function updateUser(Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'birth_date' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'role' => 'required|in:admin,faculty,student',
+            'status' => 'required|in:active,inactive,suspended',
+        ]);
+
+        try {
+            // Update user number if role changed
+            if ($validated['role'] !== $user->role) {
+                $userNum = match($validated['role']) {
+                    'admin' => 'ADMIN' . str_pad(\App\Models\User::where('role', 'admin')->count() + 1, 3, '0', STR_PAD_LEFT),
+                    'faculty' => 'FAC' . str_pad(\App\Models\User::where('role', 'faculty')->count() + 1, 3, '0', STR_PAD_LEFT),
+                    'student' => 'STU' . str_pad(\App\Models\User::where('role', 'student')->count() + 1, 4, '0', STR_PAD_LEFT),
+                    default => 'USER' . str_pad(\App\Models\User::count() + 1, 4, '0', STR_PAD_LEFT),
+                };
+                $validated['user_num'] = $userNum;
+            }
+
+            $user->update([
+                'fname' => $validated['first_name'],
+                'lname' => $validated['last_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'birth_date' => $validated['birth_date'],
+                'gender' => $validated['gender'],
+                'role' => $validated['role'],
+                'status' => $validated['status'],
+                'user_num' => $validated['user_num'] ?? $user->user_num,
+            ]);
+
+            return redirect()->route('admin.users')
+                ->with('success', 'User updated successfully!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to update user: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Delete the specified user
+     */
+    public function deleteUser($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        try {
+            // Prevent deletion of the last admin
+            if ($user->role === 'admin') {
+                $adminCount = \App\Models\User::where('role', 'admin')->count();
+                if ($adminCount <= 1) {
+                    return redirect()->back()
+                        ->withErrors(['error' => 'Cannot delete the last admin user. At least one admin must remain.']);
+                }
+            }
+
+            $user->delete();
+
+            return redirect()->route('admin.users')
+                ->with('success', 'User deleted successfully!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['error' => 'Failed to delete user: ' . $e->getMessage()]);
+        }
+    }
 }

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
-import { Users, CalendarDays, Award, FileText, Settings, BookOpen, LayoutDashboard, Sun, Moon, Monitor } from 'lucide-vue-next';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
+import { Users, CalendarDays, Award, FileText, Settings, BookOpen, LayoutDashboard, Sun, Moon, Monitor, LogOut } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import { type BreadcrumbItem } from '@/types';
 import { useAuth } from '@/composables/useAuth';
 import { useTheme } from '@/composables/useTheme';
 import { useRoleBasedAccess } from '@/composables/useRoleBasedAccess';
+import { syncWithPageProps } from '@/stores/globalState';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -39,6 +40,14 @@ const isSidebarCollapsed = ref(false);
 const { userName, userInitials, user } = useAuth();
 const { currentTheme, toggleTheme } = useTheme();
 const { getNavigationItems, hasPermission, isAdmin, isFaculty } = useRoleBasedAccess();
+
+// Get page props
+const page = usePage();
+
+// Sync with page props on mount
+onMounted(() => {
+    syncWithPageProps(page.props);
+});
 
 // Computed properties
 const themeIcon = computed(() => {
@@ -98,7 +107,7 @@ const themeIcon = computed(() => {
 
                 <!-- User section -->
                 <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-                    <div class="flex items-center" :class="isSidebarCollapsed ? 'justify-center' : 'space-x-3'">
+                    <div class="flex items-center mb-3" :class="isSidebarCollapsed ? 'justify-center' : 'space-x-3'">
                         <div class="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
                             <span class="text-sm font-medium text-white">{{ userInitials }}</span>
                         </div>
@@ -107,6 +116,17 @@ const themeIcon = computed(() => {
                             <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user?.email }}</p>
                         </div>
                     </div>
+                    <Link
+                        href="/logout"
+                        method="post"
+                        as="button"
+                        class="w-full flex items-center px-4 py-2 text-sm font-medium rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                        :class="isSidebarCollapsed ? 'justify-center' : ''"
+                        :title="isSidebarCollapsed ? 'Logout' : ''"
+                    >
+                        <LogOut class="h-5 w-5 flex-shrink-0" :class="isSidebarCollapsed ? '' : 'mr-3'" />
+                        <span v-if="!isSidebarCollapsed">Logout</span>
+                    </Link>
                 </div>
             </div>
         </div>

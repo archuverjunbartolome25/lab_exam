@@ -13,13 +13,14 @@ class Admin extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $table = 'admin_users';
-    protected $primaryKey = 'admin_user_id';
+    protected $table = 'users';
+    protected $primaryKey = 'id';
     protected $fillable = [
-        'admin_num',
+        'user_num',
         'fname',
         'lname',
         'email',
+        'password',
         'phone',
         'role',
         'status',
@@ -38,9 +39,15 @@ class Admin extends Authenticatable
         'remember_token',
     ];
 
+    // Scope to only get admin users
+    public function scopeAdminOnly($query)
+    {
+        return $query->where('role', 'admin');
+    }
+
     public function account(): HasOne
     {
-        return $this->hasOne(AdminAccount::class, 'admin_user_id', 'admin_user_id');
+        return $this->hasOne(AdminAccount::class, 'admin_user_id', 'id');
     }
 
     public function getFullNameAttribute(): string
@@ -65,17 +72,23 @@ class Admin extends Authenticatable
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'Active');
+        return $query->where('status', 'active');
     }
 
     public function isSuperAdmin(): bool
     {
-        return $this->role === 'Super Admin';
+        return $this->role === 'admin';
     }
 
     public function hasPermission(string $permission): bool
     {
         $permissions = $this->permissions ?? [];
         return in_array($permission, $permissions);
+    }
+
+    // Get admin number (maps from user_num)
+    public function getAdminNumAttribute(): string
+    {
+        return $this->user_num;
     }
 }

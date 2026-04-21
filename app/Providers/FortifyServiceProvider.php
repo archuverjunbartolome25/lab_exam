@@ -7,11 +7,15 @@ use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use App\Models\User;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -40,6 +44,31 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+        
+        // Custom authentication with role checking
+        Fortify::authenticateUsing(function (Request $request) {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user && Hash::check($request->password, $user->password)) {
+                // Check if user is admin - admins should not login through regular user login
+                if ($user->role === 'admin') {
+                    throw ValidationException::withMessages([
+                        'email' => 'Admin accounts should use the admin login panel at /admin/login',
+                    ]);
+                }
+                
+                return $user;
+            }
+
+            throw ValidationException::withMessages([
+                'email' => 'The provided credentials are incorrect.',
+            ]);
+        });
     }
 
     /**

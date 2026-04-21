@@ -34,14 +34,7 @@ interface GlobalState {
 // Create reactive global state (Single Source of Truth)
 const state = reactive<GlobalState>({
     // Logged-in user data - persisted across all pages
-    user: {
-        id: 1,
-        name: 'Dr. Sarah Johnson',
-        email: 'sarah.johnson@pnc.edu.ph',
-        role: 'faculty',
-        department: 'Computer Science',
-        avatar: undefined
-    },
+    user: null,
     // System theme setting - light/dark/system
     theme: 'system',
     // Global loading state
@@ -183,7 +176,7 @@ function applyTheme(theme: 'light' | 'dark' | 'system') {
     }
 }
 
-// Initialize from localStorage
+// Initialize from localStorage and Inertia page props
 const initialize = () => {
     // Load user from localStorage
     const savedUser = localStorage.getItem('user');
@@ -211,6 +204,23 @@ const initialize = () => {
                 applyTheme('system');
             }
         });
+    }
+};
+
+// Function to sync with Inertia page props
+export const syncWithPageProps = (pageProps: any) => {
+    if (pageProps.auth?.user) {
+        const authUser = pageProps.auth.user;
+        const formattedUser: User = {
+            id: authUser.id,
+            name: `${authUser.fname || ''} ${authUser.lname || ''}`.trim() || 'User',
+            email: authUser.email,
+            role: authUser.role,
+            department: authUser.department || null,
+        };
+        
+        state.user = formattedUser;
+        localStorage.setItem('user', JSON.stringify(formattedUser));
     }
 };
 

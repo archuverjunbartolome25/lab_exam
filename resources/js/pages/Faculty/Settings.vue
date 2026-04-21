@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import FacultyLayout from '@/layouts/FacultyLayout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+
+const page = usePage();
+const isAdmin = computed(() => (page.props as any).isAdmin);
+const Layout = computed(() => isAdmin.value ? AdminLayout : FacultyLayout);
 import { Settings, User, Bell, Shield, Palette, HelpCircle, LogOut } from 'lucide-vue-next';
 
 const facultyInfo = ref({
@@ -45,7 +51,7 @@ const updatePreferences = () => {
 </script>
 
 <template>
-    <FacultyLayout>
+    <component :is="Layout">
         <Head title="Faculty Settings" />
 
         <div class="p-6">
@@ -118,14 +124,7 @@ const updatePreferences = () => {
                             </div>
                         </div>
                         
-                        <div class="mt-6 flex justify-end">
-                            <button 
-                                @click="updateProfile"
-                                class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
-                            >
-                                Save Profile
-                            </button>
-                        </div>
+                        <!-- Save functionality removed -->
                     </div>
 
                     <!-- Notification Settings -->
@@ -178,14 +177,7 @@ const updatePreferences = () => {
                             </label>
                         </div>
                         
-                        <div class="mt-6 flex justify-end">
-                            <button 
-                                @click="updateNotifications"
-                                class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
-                            >
-                                Save Notifications
-                            </button>
-                        </div>
+                        <!-- Save functionality removed -->
                     </div>
                 </div>
 
@@ -261,17 +253,10 @@ const updatePreferences = () => {
                             </div>
                         </div>
                         
-                        <div class="mt-6 flex justify-end">
-                            <button 
-                                @click="updatePreferences"
-                                class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
-                            >
-                                Save Preferences
-                            </button>
-                        </div>
+                        <!-- Save functionality removed -->
                     </div>
                 </div>
             </div>
         </div>
-    </FacultyLayout>
+    </component>
 </template>

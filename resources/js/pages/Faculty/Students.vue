@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import FacultyLayout from '@/layouts/FacultyLayout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Users, Search, Plus, Mail, Phone } from 'lucide-vue-next';
+
+const page = usePage();
+const isAdmin = computed(() => (page.props as any).isAdmin);
+const Layout = computed(() => isAdmin.value ? AdminLayout : FacultyLayout);
 
 // Define TypeScript interfaces
 interface Student {
@@ -352,7 +358,7 @@ const getViolationColor = (count?: number) => {
 </script>
 
 <template>
-    <FacultyLayout>
+    <component :is="Layout">
         <Head title="Faculty Students" />
 
         <div class="p-6">
@@ -382,13 +388,6 @@ const getViolationColor = (count?: number) => {
                     >
                         <span>Clear Filters</span>
                     </button>
-                    <Link 
-                        href="/faculty/students/create"
-                        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-                    >
-                        <Plus class="h-4 w-4" />
-                        Add Student
-                    </Link>
                 </div>
 
                 <!-- Filter Row -->
@@ -928,5 +927,5 @@ const getViolationColor = (count?: number) => {
                 </div>
             </div>
         </div>
-    </FacultyLayout>
+    </component>
 </template>

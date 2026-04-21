@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import FacultyLayout from '@/layouts/FacultyLayout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+
+const page = usePage();
+const isAdmin = computed(() => (page.props as any).isAdmin);
+const Layout = computed(() => isAdmin.value ? AdminLayout : FacultyLayout);
 import { Users, BookOpen, Search, Plus, Mail, Phone } from 'lucide-vue-next';
 
 // Define props for data passed from controller
@@ -180,7 +186,7 @@ watch([programFilter, yearLevelFilter], () => {
 </script>
 
 <template>
-    <FacultyLayout>
+    <component :is="Layout">
         <Head title="Faculty Sections" />
 
         <div class="p-6">
@@ -247,13 +253,6 @@ watch([programFilter, yearLevelFilter], () => {
                     <div class="text-sm text-gray-600">
                         <span class="font-medium">{{ sectionOptions.length }}</span> sections found
                     </div>
-                    <Link 
-                        href="/faculty/sections/create"
-                        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-                    >
-                        <Plus class="h-4 w-4" />
-                        Add Section
-                    </Link>
                 </div>
             </div>
 
@@ -504,5 +503,5 @@ watch([programFilter, yearLevelFilter], () => {
                 </div>
             </div>
         </div>
-    </FacultyLayout>
+    </component>
 </template>
