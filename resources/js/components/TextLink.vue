@@ -1,3 +1,13 @@
+<script setup lang="ts">
+interface Props {
+    href: string;
+    active?: boolean;
+    class?: string;
+}
+
+defineProps<Props>();
+</script>
+
 <template>
     <a
         :href="href"

@@ -8,7 +8,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentQueryController;
 
 Route::get('/', function () {
-    return Inertia::render('Portal');
+    return redirect('/login');
 })->name('home');
 
 Route::get('dashboard', function () {
@@ -43,7 +43,7 @@ Route::prefix('query')->name('query.')->group(function () {
 // Navigation menu switches pages without reload
 
 // Faculty Routes (View Only) - Client-side routing with Inertia.js
-Route::prefix('faculty')->name('faculty.')->group(function () {
+Route::prefix('faculty')->name('faculty.')->middleware(['auth'])->group(function () {
     // Dashboard route - Main landing page for faculty
     Route::get('/dashboard', [FacultyController::class, 'dashboard'])->name('dashboard');
     
