@@ -34,8 +34,8 @@ defineOptions({
 const stats = ref([
     {
         title: 'Total Students',
-        value: '1,234',
-        change: '+12%',
+        value: '0',
+        change: '+0%',
         changeType: 'increase',
         icon: Users,
         color: 'from-blue-500 to-blue-600',
@@ -43,8 +43,8 @@ const stats = ref([
     },
     {
         title: 'Faculty Members',
-        value: '89',
-        change: '+5%',
+        value: '0',
+        change: '+0%',
         changeType: 'increase',
         icon: UserCheck,
         color: 'from-green-500 to-green-600',
@@ -52,59 +52,26 @@ const stats = ref([
     },
     {
         title: 'Active Courses',
-        value: '156',
-        change: '-2%',
-        changeType: 'decrease',
+        value: '0',
+        change: '+0%',
+        changeType: 'increase',
         icon: BookOpen,
         color: 'from-purple-500 to-purple-600',
         bgColor: 'bg-purple-50'
     },
     {
-        title: 'Pending Requests',
-        value: '23',
-        change: '+8%',
+        title: 'Total Users',
+        value: '0',
+        change: '+0%',
         changeType: 'increase',
-        icon: AlertCircle,
-        color: 'from-orange-500 to-orange-600',
-        bgColor: 'bg-orange-50'
+        icon: Users,
+        color: 'from-indigo-500 to-indigo-600',
+        bgColor: 'bg-indigo-50'
     }
 ]);
 
 // Recent activities
-const recentActivities = ref([
-    {
-        id: 1,
-        type: 'student_registration',
-        message: 'New student John Doe registered',
-        time: '2 minutes ago',
-        icon: Users,
-        color: 'text-blue-500'
-    },
-    {
-        id: 2,
-        type: 'course_update',
-        message: 'Course "Advanced Web Development" updated',
-        time: '15 minutes ago',
-        icon: BookOpen,
-        color: 'text-green-500'
-    },
-    {
-        id: 3,
-        type: 'system_alert',
-        message: 'System maintenance scheduled for tonight',
-        time: '1 hour ago',
-        icon: AlertCircle,
-        color: 'text-orange-500'
-    },
-    {
-        id: 4,
-        type: 'faculty_login',
-        message: 'Faculty member Sarah Wilson logged in',
-        time: '2 hours ago',
-        icon: UserCheck,
-        color: 'text-purple-500'
-    }
-]);
+const recentActivities = ref<any[]>([]);
 
 // Quick actions
 const quickActions = [
@@ -166,6 +133,99 @@ const notificationCount = ref(5);
 // Format time helper
 const formatTime = (time: string) => {
     return time;
+};
+
+// Fetch real data from API
+onMounted(async () => {
+    try {
+        // Fetch admin stats
+        const statsResponse = await fetch('/api/dashboard/admin-stats');
+        const statsData = await statsResponse.json();
+        
+        // Update stats with real data
+        stats.value = [
+            {
+                title: 'Total Students',
+                value: statsData.totalStudents || '0',
+                change: `+${statsData.studentGrowth || 0}%`,
+                changeType: 'increase',
+                icon: Users,
+                color: 'from-blue-500 to-blue-600',
+                bgColor: 'bg-blue-50'
+            },
+            {
+                title: 'Faculty Members',
+                value: statsData.totalFaculty || '0',
+                change: `+${statsData.facultyGrowth || 0}%`,
+                changeType: 'increase',
+                icon: UserCheck,
+                color: 'from-green-500 to-green-600',
+                bgColor: 'bg-green-50'
+            },
+            {
+                title: 'Active Courses',
+                value: statsData.totalCourses || '0',
+                change: `+${statsData.courseGrowth || 0}%`,
+                changeType: 'increase',
+                icon: BookOpen,
+                color: 'from-purple-500 to-purple-600',
+                bgColor: 'bg-purple-50'
+            },
+            {
+                title: 'Total Users',
+                value: statsData.totalUsers || '0',
+                change: `+${statsData.userGrowth || 0}%`,
+                changeType: 'increase',
+                icon: Users,
+                color: 'from-indigo-500 to-indigo-600',
+                bgColor: 'bg-indigo-50'
+            }
+        ];
+
+        // Fetch recent activities
+        const activitiesResponse = await fetch('/api/dashboard/recent-activities');
+        const activitiesData = await activitiesResponse.json();
+        
+        // Map API data to component format
+        recentActivities.value = activitiesData.map((activity: any) => ({
+            id: activity.id,
+            type: activity.type,
+            message: activity.message,
+            time: activity.time,
+            icon: getIconComponent(activity.icon),
+            color: activity.color
+        }));
+    } catch (error) {
+        console.error('Failed to fetch admin dashboard data:', error);
+    }
+});
+
+// Helper function to map icon names to components
+const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: any } = {
+        'Users': Users,
+        'UserCheck': UserCheck,
+        'BookOpen': BookOpen,
+        'CalendarDays': CalendarDays,
+        'Calendar': Calendar,
+        'FileText': FileText,
+        'AlertCircle': AlertCircle,
+        'CheckCircle': CheckCircle,
+        'Settings': Settings,
+        'BarChart3': BarChart3,
+        'ShieldCheck': ShieldCheck,
+        'LogOut': LogOut,
+        'TrendingUp': TrendingUp,
+        'TrendingDown': TrendingDown,
+        'Activity': Activity,
+        'Clock': Clock,
+        'ArrowUpRight': ArrowUpRight,
+        'ArrowDownRight': ArrowDownRight,
+        'MoreHorizontal': MoreHorizontal,
+        'Search': Search,
+        'Bell': Bell
+    };
+    return iconMap[iconName] || Users;
 };
 </script>
 
@@ -314,7 +374,7 @@ const formatTime = (time: string) => {
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Last Backup</p>
-                        <p class="text-lg font-bold text-gray-900 dark:text-white mt-1">2 hours ago</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white mt-1">45 minutes ago</p>
                     </div>
                     <Clock class="h-8 w-8 text-gray-500" />
                 </div>

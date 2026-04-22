@@ -335,14 +335,7 @@ const changePage = (page: number) => {
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="getRoleColor(user.role)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                                    <component :is="getRoleIcon(user.role)" class="h-3 w-3 mr-1" />
-                                    {{ user.role.charAt(0).toUpperCase() + user.role.slice(1) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
                                 <span :class="getStatusColor(user.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                                    <component :is="user.status === 'active' ? UserCheck : UserX" class="h-3 w-3 mr-1" />
                                     {{ user.status.charAt(0).toUpperCase() + user.status.slice(1) }}
                                 </span>
                             </td>

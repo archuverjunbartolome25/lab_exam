@@ -20,53 +20,65 @@ const processing = ref(false);
 const selectedCourses = ref<number[]>([]);
 
 // Form data
-const form = useForm({
+const form = ref({
     // Personal Information
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    address: '',
-    birth_date: '',
+    fname: '',
+    mname: '',
+    lname: '',
+    ext: '',
     gender: '',
+    bday: '',
+    email: '',
+    contact_num: '',
+    address: '',
     
     // Academic Information
-    student_id: '',
-    department_id: '',
+    stud_num: '',
+    guardian: '',
+    program: '',
+    program_code: '',
     section_id: '',
-    year_level: '',
-    academic_status: 'active',
-    
-    // Account Information
-    password: '',
-    password_confirmation: '',
-    
-    // Additional Information
-    courses: [],
+    course: '',
+    achievements: '',
+    skills: '',
+    affiliations: '',
+    violations: '',
+    medicalRecord: '',
+    standing: '',
+    academic_status: 'Enrolled',
 });
 
 // Validation errors
-const errors = computed(() => ({
-    first_name: form.errors.first_name,
-    last_name: form.errors.last_name,
-    email: form.errors.email,
-    phone: form.errors.phone,
-    address: form.errors.address,
-    birth_date: form.errors.birth_date,
-    gender: form.errors.gender,
-    student_id: form.errors.student_id,
-    department_id: form.errors.department_id,
-    section_id: form.errors.section_id,
-    year_level: form.errors.year_level,
-    password: form.errors.password,
-    password_confirmation: form.errors.password_confirmation,
-}));
+const errors = ref<{ [key: string]: string }>({
+    fname: '',
+    mname: '',
+    lname: '',
+    ext: '',
+    gender: '',
+    bday: '',
+    email: '',
+    contact_num: '',
+    address: '',
+    stud_num: '',
+    guardian: '',
+    program: '',
+    program_code: '',
+    section_id: '',
+    course: '',
+    achievements: '',
+    skills: '',
+    affiliations: '',
+    violations: '',
+    medicalRecord: '',
+    standing: '',
+    academic_status: '',
+});
 
 // Gender options
 const genderOptions = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-    { value: 'other', label: 'Other' }
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' },
+    { value: 'Other', label: 'Other' }
 ];
 
 // Year level options
@@ -86,14 +98,57 @@ const academicStatusOptions = [
 ];
 
 // Submit handler
-const submit = () => {
+const submit = async () => {
     processing.value = true;
-    form.courses = selectedCourses.value;
-    form.post('/admin/students/create', {
-        onFinish: () => {
-            processing.value = false;
-        },
+    
+    // Clear previous errors
+    Object.keys(errors.value).forEach(key => {
+        errors.value[key] = '';
     });
+    
+    try {
+        // Debug: Log the form data being sent
+        console.log('Form data being sent:', form.value);
+        
+        const response = await fetch('/api/admin/students', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(form.value)
+        });
+        
+        const data = await response.json();
+        
+        // Debug: Log the response
+        console.log('API Response:', response.status, data);
+        
+        if (response.ok) {
+            // Success - redirect to students list
+            alert('Student created successfully!');
+            window.location.href = '/admin/students';
+        } else {
+            // Handle validation errors
+            if (data.errors) {
+                console.log('Validation errors:', data.errors);
+                Object.keys(data.errors).forEach(key => {
+                    if (errors.value.hasOwnProperty(key)) {
+                        errors.value[key] = data.errors[key][0];
+                    }
+                });
+            } else if (data.message) {
+                alert('Error: ' + data.message);
+            } else {
+                alert('Error creating student. Please try again.');
+            }
+        }
+    } catch (error) {
+        console.error('Error creating student:', error);
+        alert('Network error. Please check your connection and try again.');
+    } finally {
+        processing.value = false;
+    }
 };
 
 // Toggle password visibility
@@ -118,7 +173,7 @@ const toggleCourse = (courseId: number) => {
 const generateStudentId = () => {
     const year = new Date().getFullYear();
     const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    form.student_id = `STU${year}${random}`;
+    form.value.stud_num = `STU${year}${random}`;
 };
 </script>
 
@@ -151,43 +206,83 @@ const generateStudentId = () => {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- First Name -->
                         <div>
-                            <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <label for="fname" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 First Name *
                             </label>
                             <input
-                                id="first_name"
-                                v-model="form.first_name"
+                                id="fname"
+                                v-model="form.fname"
                                 type="text"
                                 required
                                 :class="[
                                     'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                    form.errors.first_name ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                    errors.fname ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                 ]"
                                 placeholder="Enter first name"
                             />
-                            <p v-if="form.errors.first_name" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.first_name }}
+                            <p v-if="errors.fname" class="mt-1 text-sm text-red-600">
+                                {{ errors.fname }}
+                            </p>
+                        </div>
+
+                        <!-- Middle Name -->
+                        <div>
+                            <label for="mname" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Middle Name
+                            </label>
+                            <input
+                                id="mname"
+                                v-model="form.mname"
+                                type="text"
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.mname ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="Enter middle name"
+                            />
+                            <p v-if="errors.mname" class="mt-1 text-sm text-red-600">
+                                {{ errors.mname }}
                             </p>
                         </div>
 
                         <!-- Last Name -->
                         <div>
-                            <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <label for="lname" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Last Name *
                             </label>
                             <input
-                                id="last_name"
-                                v-model="form.last_name"
+                                id="lname"
+                                v-model="form.lname"
                                 type="text"
                                 required
                                 :class="[
                                     'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                    form.errors.last_name ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                    errors.lname ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                 ]"
                                 placeholder="Enter last name"
                             />
-                            <p v-if="form.errors.last_name" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.last_name }}
+                            <p v-if="errors.lname" class="mt-1 text-sm text-red-600">
+                                {{ errors.lname }}
+                            </p>
+                        </div>
+
+                        <!-- Extension -->
+                        <div>
+                            <label for="ext" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Extension (Jr., Sr., etc.)
+                            </label>
+                            <input
+                                id="ext"
+                                v-model="form.ext"
+                                type="text"
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.ext ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="Jr., Sr., III, etc."
+                            />
+                            <p v-if="errors.ext" class="mt-1 text-sm text-red-600">
+                                {{ errors.ext }}
                             </p>
                         </div>
 
@@ -207,44 +302,44 @@ const generateStudentId = () => {
                                     required
                                     :class="[
                                         'appearance-none relative block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                        form.errors.email ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                        errors.email ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                     ]"
                                     placeholder="student@example.com"
                                 />
                             </div>
-                            <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.email }}
+                            <p v-if="errors.email" class="mt-1 text-sm text-red-600">
+                                {{ errors.email }}
                             </p>
                         </div>
 
-                        <!-- Phone -->
+                        <!-- Contact Number -->
                         <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Phone Number
+                            <label for="contact_num" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Contact Number
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Phone class="h-5 w-5 text-gray-400" />
                                 </div>
                                 <input
-                                    id="phone"
-                                    v-model="form.phone"
+                                    id="contact_num"
+                                    v-model="form.contact_num"
                                     type="tel"
                                     :class="[
                                         'appearance-none relative block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                        form.errors.phone ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                        errors.contact_num ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                     ]"
-                                    placeholder="+1 234-567-8900"
+                                    placeholder="+63 912-345-6789"
                                 />
                             </div>
-                            <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.phone }}
+                            <p v-if="errors.contact_num" class="mt-1 text-sm text-red-600">
+                                {{ errors.contact_num }}
                             </p>
                         </div>
 
                         <!-- Birth Date -->
                         <div>
-                            <label for="birth_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <label for="bday" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Birth Date *
                             </label>
                             <div class="relative">
@@ -252,18 +347,18 @@ const generateStudentId = () => {
                                     <Calendar class="h-5 w-5 text-gray-400" />
                                 </div>
                                 <input
-                                    id="birth_date"
-                                    v-model="form.birth_date"
+                                    id="bday"
+                                    v-model="form.bday"
                                     type="date"
                                     required
                                     :class="[
                                         'appearance-none relative block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                        form.errors.birth_date ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                        errors.bday ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                     ]"
                                 />
                             </div>
-                            <p v-if="form.errors.birth_date" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.birth_date }}
+                            <p v-if="errors.bday" class="mt-1 text-sm text-red-600">
+                                {{ errors.bday }}
                             </p>
                         </div>
 
@@ -278,7 +373,7 @@ const generateStudentId = () => {
                                 required
                                 :class="[
                                     'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                    form.errors.gender ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                    errors.gender ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                 ]"
                             >
                                 <option value="">Select Gender</option>
@@ -286,8 +381,8 @@ const generateStudentId = () => {
                                     {{ option.label }}
                                 </option>
                             </select>
-                            <p v-if="form.errors.gender" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.gender }}
+                            <p v-if="errors.gender" class="mt-1 text-sm text-red-600">
+                                {{ errors.gender }}
                             </p>
                         </div>
 
@@ -307,13 +402,13 @@ const generateStudentId = () => {
                                     required
                                     :class="[
                                         'appearance-none relative block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                        form.errors.address ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                        errors.address ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                     ]"
                                     placeholder="Enter full address"
                                 />
                             </div>
-                            <p v-if="form.errors.address" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.address }}
+                            <p v-if="errors.address" class="mt-1 text-sm text-red-600">
+                                {{ errors.address }}
                             </p>
                         </div>
                     </div>
@@ -327,22 +422,22 @@ const generateStudentId = () => {
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Student ID -->
+                        <!-- Student Number -->
                         <div>
-                            <label for="student_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Student ID *
+                            <label for="stud_num" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Student Number *
                             </label>
                             <div class="flex space-x-2">
                                 <input
-                                    id="student_id"
-                                    v-model="form.student_id"
+                                    id="stud_num"
+                                    v-model="form.stud_num"
                                     type="text"
                                     required
                                     :class="[
                                         'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                        form.errors.student_id ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                        errors.stud_num ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                     ]"
-                                    placeholder="Enter student ID"
+                                    placeholder="Enter student number"
                                 />
                                 <button
                                     type="button"
@@ -352,80 +447,139 @@ const generateStudentId = () => {
                                     Generate
                                 </button>
                             </div>
-                            <p v-if="form.errors.student_id" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.student_id }}
+                            <p v-if="errors.stud_num" class="mt-1 text-sm text-red-600">
+                                {{ errors.stud_num }}
                             </p>
                         </div>
 
-                        <!-- Department -->
+                        <!-- Guardian -->
                         <div>
-                            <label for="department_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Department *
+                            <label for="guardian" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Guardian Name *
                             </label>
-                            <select
-                                id="department_id"
-                                v-model="form.department_id"
+                            <input
+                                id="guardian"
+                                v-model="form.guardian"
+                                type="text"
                                 required
                                 :class="[
                                     'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                    form.errors.department_id ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                    errors.guardian ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                 ]"
-                            >
-                                <option value="">Select Department</option>
-                                <option v-for="dept in departments" :key="dept.id" :value="dept.id">
-                                    {{ dept.name }}
-                                </option>
-                            </select>
-                            <p v-if="form.errors.department_id" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.department_id }}
+                                placeholder="Enter guardian name"
+                            />
+                            <p v-if="errors.guardian" class="mt-1 text-sm text-red-600">
+                                {{ errors.guardian }}
                             </p>
                         </div>
 
-                        <!-- Section -->
+                        <!-- Program -->
+                        <div>
+                            <label for="program" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Program *
+                            </label>
+                            <select
+                                id="program"
+                                v-model="form.program"
+                                required
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.program ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                            >
+                                <option value="">Select Program</option>
+                                <option value="BSIT">Bachelor of Science in Information Technology</option>
+                                <option value="BSCS">Bachelor of Science in Computer Science</option>
+                            </select>
+                            <p v-if="errors.program" class="mt-1 text-sm text-red-600">
+                                {{ errors.program }}
+                            </p>
+                        </div>
+
+                        <!-- Program Code -->
+                        <div>
+                            <label for="program_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Program Code *
+                            </label>
+                            <input
+                                id="program_code"
+                                v-model="form.program_code"
+                                type="text"
+                                required
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.program_code ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="BSIT or BSCS"
+                            />
+                            <p v-if="errors.program_code" class="mt-1 text-sm text-red-600">
+                                {{ errors.program_code }}
+                            </p>
+                        </div>
+
+                        <!-- Section ID -->
                         <div>
                             <label for="section_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Section *
+                                Section ID *
                             </label>
-                            <select
+                            <input
                                 id="section_id"
                                 v-model="form.section_id"
+                                type="text"
                                 required
                                 :class="[
                                     'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                    form.errors.section_id ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                    errors.section_id ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                 ]"
-                            >
-                                <option value="">Select Section</option>
-                                <option v-for="section in sections" :key="section.id" :value="section.id">
-                                    {{ section.name }} ({{ section.year_level }})
-                                </option>
-                            </select>
-                            <p v-if="form.errors.section_id" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.section_id }}
+                                placeholder="Enter section ID"
+                            />
+                            <p v-if="errors.section_id" class="mt-1 text-sm text-red-600">
+                                {{ errors.section_id }}
                             </p>
                         </div>
 
-                        <!-- Year Level -->
+                        <!-- Course -->
                         <div>
-                            <label for="year_level" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Year Level *
+                            <label for="course" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Course *
                             </label>
-                            <select
-                                id="year_level"
-                                v-model="form.year_level"
+                            <input
+                                id="course"
+                                v-model="form.course"
+                                type="text"
                                 required
                                 :class="[
                                     'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                    form.errors.year_level ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                    errors.course ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="Enter course"
+                            />
+                            <p v-if="errors.course" class="mt-1 text-sm text-red-600">
+                                {{ errors.course }}
+                            </p>
+                        </div>
+
+                        <!-- Standing -->
+                        <div>
+                            <label for="standing" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Academic Standing *
+                            </label>
+                            <select
+                                id="standing"
+                                v-model="form.standing"
+                                required
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.standing ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                 ]"
                             >
-                                <option value="">Select Year Level</option>
+                                <option value="">Select Standing</option>
                                 <option v-for="option in yearLevelOptions" :key="option.value" :value="option.value">
                                     {{ option.label }}
                                 </option>
                             </select>
-                            <p v-if="form.errors.year_level" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.year_level }}
+                            <p v-if="errors.standing" class="mt-1 text-sm text-red-600">
+                                {{ errors.standing }}
                             </p>
                         </div>
 
@@ -440,114 +594,129 @@ const generateStudentId = () => {
                                 required
                                 :class="[
                                     'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                    form.errors.academic_status ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                    errors.academic_status ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                                 ]"
                             >
                                 <option value="">Select Status</option>
-                                <option v-for="option in academicStatusOptions" :key="option.value" :value="option.value">
-                                    {{ option.label }}
-                                </option>
+                                <option value="Enrolled">Enrolled</option>
+                                <option value="Not Enrolled">Not Enrolled</option>
+                                <option value="On Leave">On Leave</option>
+                                <option value="Graduated">Graduated</option>
+                                <option value="Dropped">Dropped</option>
                             </select>
-                            <p v-if="form.errors.academic_status" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.academic_status }}
+                            <p v-if="errors.academic_status" class="mt-1 text-sm text-red-600">
+                                {{ errors.academic_status }}
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Account Information Section -->
-                <div>
-                    <div class="flex items-center mb-4">
-                        <Shield class="h-5 w-5 text-orange-500 mr-2" />
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Account Information</h2>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Password -->
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Password *
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock class="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password"
-                                    v-model="form.password"
-                                    :type="passwordType"
-                                    required
-                                    :class="[
-                                        'appearance-none relative block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                        form.errors.password ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
-                                    ]"
-                                    placeholder="Enter password"
-                                />
-                                <button
-                                    type="button"
-                                    @click="togglePassword"
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center"
-                                >
-                                    <Eye v-if="!showPassword" class="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                                    <EyeOff v-else class="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                                </button>
-                            </div>
-                            <p v-if="form.errors.password" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.password }}
-                            </p>
-                        </div>
-
-                        <!-- Password Confirmation -->
-                        <div>
-                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Confirm Password *
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock class="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password_confirmation"
-                                    v-model="form.password_confirmation"
-                                    :type="passwordType"
-                                    required
-                                    :class="[
-                                        'appearance-none relative block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
-                                        form.errors.password_confirmation ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
-                                    ]"
-                                    placeholder="Confirm password"
-                                />
-                            </div>
-                            <p v-if="form.errors.password_confirmation" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.password_confirmation }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Course Selection -->
+                <!-- Additional Information Section -->
                 <div>
                     <div class="flex items-center mb-4">
                         <BookOpen class="h-5 w-5 text-orange-500 mr-2" />
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Course Enrollment</h2>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Additional Information</h2>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div v-for="course in courses" :key="course.id" class="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <label class="flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    :value="course.id"
-                                    :checked="selectedCourses.includes(course.id)"
-                                    @change="toggleCourse(course.id)"
-                                    class="h-4 w-4 text-orange-600 rounded focus:ring-orange-400"
-                                />
-                                <div class="ml-3">
-                                    <div class="font-medium text-gray-900 dark:text-white">{{ course.code }}</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ course.name }}</div>
-                                    <div class="text-xs text-gray-400 dark:text-gray-500">{{ course.credits }} credits</div>
-                                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Achievements -->
+                        <div class="md:col-span-2">
+                            <label for="achievements" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Achievements
                             </label>
+                            <textarea
+                                id="achievements"
+                                v-model="form.achievements"
+                                rows="3"
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.achievements ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="Enter student achievements"
+                            ></textarea>
+                            <p v-if="errors.achievements" class="mt-1 text-sm text-red-600">
+                                {{ errors.achievements }}
+                            </p>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="md:col-span-2">
+                            <label for="skills" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Skills
+                            </label>
+                            <textarea
+                                id="skills"
+                                v-model="form.skills"
+                                rows="3"
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.skills ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="Enter student skills"
+                            ></textarea>
+                            <p v-if="errors.skills" class="mt-1 text-sm text-red-600">
+                                {{ errors.skills }}
+                            </p>
+                        </div>
+
+                        <!-- Affiliations -->
+                        <div class="md:col-span-2">
+                            <label for="affiliations" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Affiliations
+                            </label>
+                            <textarea
+                                id="affiliations"
+                                v-model="form.affiliations"
+                                rows="3"
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.affiliations ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="Enter student affiliations"
+                            ></textarea>
+                            <p v-if="errors.affiliations" class="mt-1 text-sm text-red-600">
+                                {{ errors.affiliations }}
+                            </p>
+                        </div>
+
+                        <!-- Violations -->
+                        <div class="md:col-span-2">
+                            <label for="violations" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Violations
+                            </label>
+                            <textarea
+                                id="violations"
+                                v-model="form.violations"
+                                rows="3"
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.violations ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="Enter student violations"
+                            ></textarea>
+                            <p v-if="errors.violations" class="mt-1 text-sm text-red-600">
+                                {{ errors.violations }}
+                            </p>
+                        </div>
+
+                        <!-- Medical Record -->
+                        <div class="md:col-span-2">
+                            <label for="medicalRecord" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Medical Record
+                            </label>
+                            <textarea
+                                id="medicalRecord"
+                                v-model="form.medicalRecord"
+                                rows="3"
+                                :class="[
+                                    'appearance-none relative block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent',
+                                    errors.medicalRecord ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+                                ]"
+                                placeholder="Enter medical record information"
+                            ></textarea>
+                            <p v-if="errors.medicalRecord" class="mt-1 text-sm text-red-600">
+                                {{ errors.medicalRecord }}
+                            </p>
                         </div>
                     </div>
                 </div>

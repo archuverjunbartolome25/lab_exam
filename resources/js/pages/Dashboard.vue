@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Users, UserCheck, BookOpen, CalendarDays, Calendar, Search, LayoutDashboard } from 'lucide-vue-next';
+import { Users, UserCheck, BookOpen, CalendarDays, Calendar, Search, LayoutDashboard, FileText } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,48 +19,50 @@ const stats = ref({
     totalEvents: 0,
 });
 
-const recentActivities = ref([
-    {
-        id: 1,
-        description: 'New student enrolled in Computer Science',
-        time: '2 hours ago',
-        icon: Users,
-    },
-    {
-        id: 2,
-        description: 'Faculty meeting scheduled for tomorrow',
-        time: '4 hours ago',
-        icon: Calendar,
-    },
-    {
-        id: 3,
-        description: 'New course syllabus uploaded',
-        time: '6 hours ago',
-        icon: BookOpen,
-    },
-    {
-        id: 4,
-        description: 'Upcoming event: Tech Conference 2024',
-        time: '1 day ago',
-        icon: CalendarDays,
-    },
-]);
+const recentActivities = ref<any[]>([]);
 
 onMounted(async () => {
     try {
-        const response = await fetch('/api/dashboard/stats');
-        const data = await response.json();
-        stats.value = data;
+        // Fetch stats
+        const statsResponse = await fetch('/api/dashboard/stats');
+        const statsData = await statsResponse.json();
+        stats.value = statsData;
+
+        // Fetch recent activities
+        const activitiesResponse = await fetch('/api/dashboard/recent-activities');
+        const activitiesData = await activitiesResponse.json();
+        
+        // Map API data to component format
+        recentActivities.value = activitiesData.map((activity: any) => ({
+            id: activity.id,
+            description: activity.message,
+            time: activity.time,
+            icon: getIconComponent(activity.icon),
+        }));
     } catch (error) {
-        console.error('Failed to fetch dashboard stats:', error);
+        console.error('Failed to fetch dashboard data:', error);
+        // Fallback data
         stats.value = {
-            totalStudents: 1250,
-            totalFaculty: 85,
-            totalCourses: 45,
-            totalEvents: 12,
+            totalStudents: 0,
+            totalFaculty: 0,
+            totalCourses: 0,
+            totalEvents: 0,
         };
+        recentActivities.value = [];
     }
 });
+
+// Helper function to map icon names to components
+const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: any } = {
+        'Users': Users,
+        'BookOpen': BookOpen,
+        'Calendar': Calendar,
+        'CalendarDays': CalendarDays,
+        'FileText': FileText,
+    };
+    return iconMap[iconName] || Users;
+};
 </script>
 
 <template>

@@ -742,7 +742,7 @@ class FacultyController extends Controller
      */
     public function users()
     {
-        $users = \App\Models\User::select('id', 'user_num', 'fname', 'lname', 'email', 'role', 'status', 'created_at', 'updated_at')
+        $users = \App\Models\User::select('id', 'user_num', 'fname', 'lname', 'email', 'status', 'created_at', 'updated_at')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($user) {
@@ -753,7 +753,6 @@ class FacultyController extends Controller
                     'fname' => $user->fname,
                     'lname' => $user->lname,
                     'email' => $user->email,
-                    'role' => $user->role,
                     'status' => $user->status,
                     'join_date' => $user->created_at->format('Y-m-d'),
                     'last_login' => $user->updated_at->format('Y-m-d H:i A'),

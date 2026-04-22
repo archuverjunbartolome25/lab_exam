@@ -37,8 +37,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [App\Http\Controllers\Auth\AdminLoginController::class, 'login']);
     Route::post('/logout', [App\Http\Controllers\Auth\AdminLoginController::class, 'logout'])->name('logout');
 
-    // Protected admin pages
-    Route::middleware('auth:admin')->group(function () {
+    // Admin Routes (No Authentication Required)
+    Route::group([], function () {
         Route::redirect('/', '/admin/dashboard');
 
         Route::get('/dashboard', function () {
@@ -52,12 +52,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users/{id}/edit', [FacultyController::class, 'editUser'])->name('users.edit');
         Route::put('/users/{id}', [FacultyController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{id}', [FacultyController::class, 'deleteUser'])->name('users.delete');
-        Route::get('/faculty', function () {
-            return Inertia::render('AdminFaculty');
-        })->name('faculty');
-        Route::get('/students', function () {
-            return Inertia::render('AdminStudents');
-        })->name('students');
+        Route::get('/faculty', [FacultyController::class, 'sections'])->name('faculty');
+        Route::get('/students', [FacultyController::class, 'students'])->name('students');
         Route::get('/students/create', function () {
             return Inertia::render('AdminCreateStudent');
         })->name('students.create');

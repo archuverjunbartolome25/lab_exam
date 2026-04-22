@@ -31,78 +31,12 @@ defineOptions({
 });
 
 // Student data
-const students = ref([
-    {
-        id: 1,
-        name: 'Alice Johnson',
-        email: 'alice.johnson@student.edu',
-        studentId: 'STU001',
-        department: 'Computer Science',
-        year: '3rd',
-        gpa: '3.8',
-        status: 'active',
-        enrollmentDate: '2022-09-01',
-        courses: 6,
-        achievements: 3,
-        violations: 0,
-        phone: '+1 234-567-8900',
-        address: '123 Main St, City, State'
-    },
-    {
-        id: 2,
-        name: 'Bob Smith',
-        email: 'bob.smith@student.edu',
-        studentId: 'STU002',
-        department: 'Information Technology',
-        year: '2nd',
-        gpa: '3.5',
-        status: 'active',
-        enrollmentDate: '2023-09-01',
-        courses: 5,
-        achievements: 2,
-        violations: 1,
-        phone: '+1 234-567-8901',
-        address: '456 Oak Ave, City, State'
-    },
-    {
-        id: 3,
-        name: 'Carol Davis',
-        email: 'carol.davis@student.edu',
-        studentId: 'STU003',
-        department: 'Mathematics',
-        year: '4th',
-        gpa: '3.9',
-        status: 'active',
-        enrollmentDate: '2021-09-01',
-        courses: 4,
-        achievements: 5,
-        violations: 0,
-        phone: '+1 234-567-8902',
-        address: '789 Pine Rd, City, State'
-    },
-    {
-        id: 4,
-        name: 'David Wilson',
-        email: 'david.wilson@student.edu',
-        studentId: 'STU004',
-        department: 'Computer Science',
-        year: '1st',
-        gpa: '3.2',
-        status: 'inactive',
-        enrollmentDate: '2023-09-01',
-        courses: 3,
-        achievements: 1,
-        violations: 2,
-        phone: '+1 234-567-8903',
-        address: '321 Elm St, City, State'
-    }
-]);
+const students = ref<any[]>([]);
 
 // Search and filter
 const searchQuery = ref('');
 const selectedDepartment = ref('all');
 const selectedYear = ref('all');
-const selectedStatus = ref('all');
 
 // Pagination
 const currentPage = ref(1);
@@ -116,8 +50,7 @@ const filteredStudents = computed(() => {
                             student.studentId.toLowerCase().includes(searchQuery.value.toLowerCase());
         const matchesDepartment = selectedDepartment.value === 'all' || student.department === selectedDepartment.value;
         const matchesYear = selectedYear.value === 'all' || student.year === selectedYear.value;
-        const matchesStatus = selectedStatus.value === 'all' || student.status === selectedStatus.value;
-        return matchesSearch && matchesDepartment && matchesYear && matchesStatus;
+        return matchesSearch && matchesDepartment && matchesYear;
     });
 });
 
@@ -134,9 +67,9 @@ const totalPages = computed(() => Math.ceil(filteredStudents.value.length / item
 // Filter options
 const departmentOptions = [
     { value: 'all', label: 'All Departments' },
-    { value: 'Computer Science', label: 'Computer Science' },
-    { value: 'Information Technology', label: 'Information Technology' },
-    { value: 'Mathematics', label: 'Mathematics' }
+    { value: 'BSIT', label: 'Information Technology' },
+    { value: 'BSCS', label: 'Computer Science' },
+    { value: 'Unknown', label: 'Unknown' }
 ];
 
 const yearOptions = [
@@ -147,21 +80,15 @@ const yearOptions = [
     { value: '4th', label: '4th Year' }
 ];
 
-const statusOptions = [
-    { value: 'all', label: 'All Status' },
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' }
-];
 
 // Stats
-const stats = computed(() => ({
-    total: students.value.length,
-    active: students.value.filter(s => s.status === 'active').length,
-    inactive: students.value.filter(s => s.status === 'inactive').length,
-    avgGPA: (students.value.reduce((sum, s) => sum + parseFloat(s.gpa), 0) / students.value.length).toFixed(2),
-    totalCourses: students.value.reduce((sum, s) => sum + s.courses, 0),
-    totalAchievements: students.value.reduce((sum, s) => sum + s.achievements, 0)
-}));
+const stats = ref({
+    total: 0,
+    bsitStudents: 0,
+    bscsStudents: 0,
+    totalCourses: 0,
+    totalAchievements: 0
+});
 
 // Methods
 const getStatusColor = (status: string) => {
@@ -190,6 +117,23 @@ const changePage = (page: number) => {
         currentPage.value = page;
     }
 };
+
+// Fetch real student data and stats from API
+onMounted(async () => {
+    try {
+        // Fetch students
+        const studentsResponse = await fetch('/api/admin/students');
+        const studentsData = await studentsResponse.json();
+        students.value = studentsData;
+
+        // Fetch stats
+        const statsResponse = await fetch('/api/admin/student-stats');
+        const statsData = await statsResponse.json();
+        stats.value = statsData;
+    } catch (error) {
+        console.error('Failed to fetch data:', error);
+    }
+});
 </script>
 
 <template>
@@ -235,11 +179,11 @@ const changePage = (page: number) => {
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Active Students</p>
-                        <p class="text-2xl font-bold text-green-600 mt-2">{{ stats.active }}</p>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">BSIT Students</p>
+                        <p class="text-2xl font-bold text-blue-600 mt-2">{{ stats.bsitStudents }}</p>
                     </div>
-                    <div class="p-3 bg-green-50 rounded-lg">
-                        <CheckCircle class="h-6 w-6 text-green-600" />
+                    <div class="p-3 bg-blue-50 rounded-lg">
+                        <Users class="h-6 w-6 text-blue-600" />
                     </div>
                 </div>
             </div>
@@ -247,11 +191,11 @@ const changePage = (page: number) => {
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Average GPA</p>
-                        <p class="text-2xl font-bold text-purple-600 mt-2">{{ stats.avgGPA }}</p>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">BSCS Students</p>
+                        <p class="text-2xl font-bold text-green-600 mt-2">{{ stats.bscsStudents }}</p>
                     </div>
-                    <div class="p-3 bg-purple-50 rounded-lg">
-                        <Award class="h-6 w-6 text-purple-600" />
+                    <div class="p-3 bg-green-50 rounded-lg">
+                        <Users class="h-6 w-6 text-green-600" />
                     </div>
                 </div>
             </div>
@@ -300,13 +244,7 @@ const changePage = (page: number) => {
                         </option>
                     </select>
                     
-                    <!-- Status Filter -->
-                    <select v-model="selectedStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option v-for="option in statusOptions" :key="option.value" :value="option.value">
-                            {{ option.label }}
-                        </option>
-                    </select>
-                </div>
+                                    </div>
                 
                 <div class="text-sm text-gray-600 dark:text-gray-400">
                     Showing {{ paginatedStudents.length }} of {{ filteredStudents.length }} students
@@ -332,13 +270,7 @@ const changePage = (page: number) => {
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Year
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                GPA
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
@@ -372,18 +304,7 @@ const changePage = (page: number) => {
                                     {{ student.year }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="getGPAColor(student.gpa)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                                    {{ student.gpa }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="getStatusColor(student.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                                    <component :is="student.status === 'active' ? CheckCircle : AlertTriangle" class="h-3 w-3 mr-1" />
-                                    {{ student.status.charAt(0).toUpperCase() + student.status.slice(1) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">
                                     <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                                         <Eye class="h-4 w-4" />

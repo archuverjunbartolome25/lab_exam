@@ -78,23 +78,7 @@ const passwordType = computed(() => showPassword.value ? 'text' : 'password');
                     </div>
                 </div>
 
-                <!-- Validation Errors -->
-                <div v-if="Object.keys(errors).length > 0" class="mb-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <AlertCircle class="h-5 w-5 text-red-400" />
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-red-700" v-if="errors.email">
-                                {{ errors.email }}
-                            </p>
-                            <p class="text-sm text-red-700" v-if="errors.password">
-                                {{ errors.password }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
+                
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="space-y-4">
                         <!-- Email Field -->

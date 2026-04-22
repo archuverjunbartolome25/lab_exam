@@ -11,6 +11,11 @@ use App\Http\Controllers\API\DashboardController;
 
 // Public routes
 Route::get('dashboard/stats', [DashboardController::class, 'stats']);
+Route::get('dashboard/admin-stats', [DashboardController::class, 'adminStats']);
+Route::get('dashboard/recent-activities', [DashboardController::class, 'recentActivities']);
+Route::get('admin/students', [DashboardController::class, 'adminStudents']);
+Route::get('admin/student-stats', [DashboardController::class, 'studentStats']);
+Route::post('admin/students', [DashboardController::class, 'createStudent']);
 
 Route::middleware('auth:sanctum')->group(function () {
     

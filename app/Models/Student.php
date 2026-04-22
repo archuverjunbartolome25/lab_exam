@@ -34,6 +34,7 @@ class Student extends Model
         'program',
         'program_code',
         'section_id',
+        'course',
         'courses',
         'standing',
         'academic_status',

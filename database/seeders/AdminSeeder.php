@@ -14,18 +14,23 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create default admin user
-        Admin::create([
-            'admin_num' => 'ADMIN001',
-            'fname' => 'System',
-            'lname' => 'Administrator',
-            'email' => 'admin@labexam.com',
-            'password' => Hash::make('admin123'),
-            'status' => 'active',
-        ]);
-
-        $this->command->info('Default admin user created successfully!');
-        $this->command->info('Email: admin@labexam.com');
-        $this->command->info('Password: admin123');
+        // Check if admin user already exists
+        $existingAdmin = \App\Models\Admin::where('email', 'admin@ccs.edu')->first();
+        
+        if (!$existingAdmin) {
+            \App\Models\Admin::create([
+                'user_num' => 'ADMIN001',
+                'fname' => 'System',
+                'lname' => 'Administrator',
+                'email' => 'admin@ccs.edu',
+                'password' => bcrypt('admin123')
+            ]);
+            
+            $this->command->info('Admin user created successfully!');
+            $this->command->info('Email: admin@ccs.edu');
+            $this->command->info('Password: admin123');
+        } else {
+            $this->command->info('Admin user already exists.');
+        }
     }
 }
